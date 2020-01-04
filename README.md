@@ -18,3 +18,6 @@ Load TFLite by using native TF operators
     2. #./flatc -t schema.fbs -- xxxxx.tflite
     3. and you get the json
     4. using func tflite2json() change json to dictionary format json
+
+# TODO 
+1. Using TF1.x
