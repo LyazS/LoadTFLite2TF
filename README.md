@@ -1,7 +1,8 @@
 # LoadTFLite2TF
 Load TFLite by using native TF operators
 
-# Convert tflite to json 
+# How to use
+## Convert tflite to json 
 
 * First, using google flatbuffer -- flatc，flatc can convert the tflite file to json format
 
@@ -19,5 +20,16 @@ Load TFLite by using native TF operators
     3. and you get the json
     4. using func tflite2json() change json to dictionary format json
 
-# TODO 
-1. Using TF1.x
+## Load into TF native ops
+
+* check your path (test_json) in Code4TFv13/TFLite2TFv13.py or Code4TFv15/TFLite2TFv15.py
+
+* run it : **python TFLite2TFv15.py** and get a .pb file
+
+* then your can load the .pb file to test
+    1. construct a np.array for your network inputs
+    2. **python loadpb.py**
+    3. check your outputs
+
+## Need to know
+I just create for Project Mediapipe
