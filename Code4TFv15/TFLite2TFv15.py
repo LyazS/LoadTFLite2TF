@@ -23,6 +23,7 @@ import pdb
 
 
 testnp="testnp.npy"
+test_json="palm_detection_new.json"
 print(tf.__version__)
 
 
@@ -82,7 +83,7 @@ def tflite2json(pathIn,pathDst):
 
 
 # load the json
-with open("palm_detection_new.json", 'r') as f:
+with open(test_json, 'r') as f:
     load_dict = json.load(f)
 
 
