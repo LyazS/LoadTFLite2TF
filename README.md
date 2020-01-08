@@ -33,4 +33,4 @@
     3. check your outputs
 
 ## Need to know
-I just test the Project Mediapipe tflite,for your own using, check the ops definition
+1. I just test the Project Mediapipe tflite,for your own using, check the ops definition
