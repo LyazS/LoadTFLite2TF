@@ -1,5 +1,6 @@
-# LoadTFLite2TF
-Load TFLite by using native TF operators
+# Convert tflite to pb 
+1. Load TFLite by using native TF operators
+2. create .pb file
 
 # How to use
 ## Convert tflite to json 
