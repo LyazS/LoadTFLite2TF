@@ -32,4 +32,4 @@ Load TFLite by using native TF operators
     3. check your outputs
 
 ## Need to know
-I just create for Project Mediapipe
+I just test the Project Mediapipe tflite,for your own using, check the ops definition
