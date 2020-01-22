@@ -23,14 +23,13 @@
 
 ## Load into TF native ops
 
-* check your path (test_json) in Code4TFv13/TFLite2TFv13.py or Code4TFv15/TFLite2TFv15.py
+* check your path (test_json) in Code4TFv15/TFLite2TFv15.py
 
-* run it : **python TFLite2TFv15.py** and get a .pb file
+* run **Change2NewJson.py** and get the new json
 
-* then your can load the .pb file to test
-    1. construct a np.array for your network inputs
-    2. **python loadpb.py**
-    3. check your outputs
+* run **TFLite2TFv15.py** and get a .pb file
+
+* then your can test the speed using .pb/.tflite/OpenCV.DNN
 
 ## Need to know
-1. I just test the Project Mediapipe tflite,for your own using, check the ops definition
+1. I just test the Project Mediapipe tflite,for your own using, check the ops definition in **Operators.py**
