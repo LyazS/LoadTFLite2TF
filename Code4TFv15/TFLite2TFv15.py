@@ -1,9 +1,6 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[1]:
-
-
 # -*- coding: UTF-8 -*-
 from __future__ import division
 import os
@@ -16,28 +13,27 @@ from Operators import tf_op_dict
 
 print(tf.__version__)
 
-testnp="testnp.npy"
-Json_path="hand_landmark_new.json"
-pb_path="hand_landmark.pb"
+testnp = "testnp.npy"
+Json_path = "hand_landmark_new.json"
+pb_path = "hand_landmark.pb"
 # Json_path="palm_detection_new.json"
 # pb_path="palm_detection.pb"
 # # Config TF
-# In[2]:
 
 # # Convert TFLite
-# 
-# * convert tflite to json 
-# 
+#
+# * convert tflite to json
+#
 # * using google flatbuffer -- flatc，flatc can convert the tflite file to json format
-# 
-# * flatbuffer：https://github.com/google/flatbuffers 
-# 
+#
+# * flatbuffer：https://github.com/google/flatbuffers
+#
 # * Install it：
-#     1. download the git 
+#     1. download the git
 #     2. cmake -G "Unix Makefiles" //create the MakeFile
 #     3. make //create the flatc
 #     4. make install //安裝flatc
-# 
+#
 # * Convert:
 #     1. copy the structure file 'schema.fbs' from tensorflow to the root of flatbuffer
 #     2. #./flatc -t schema.fbs -- xxxxx.tflite
@@ -45,18 +41,11 @@ pb_path="hand_landmark.pb"
 
 # # Data Process
 
-# In[4]:
-
-
 # load the json
 with open(Json_path, 'r') as f:
     load_dict = json.load(f)
 
-
 # ## json to numpy
-
-# In[5]:
-
 
 import struct
 
@@ -116,38 +105,22 @@ def getAllBuffers(buffers):
 # testonebfs = getOneBuffers(load_dict['buffers'][102]['data'],'f')
 # print(testonebfs,testonebfs.shape)
 
-
 # ## what is in the tflite
 
-# In[6]:
-
-
 # 网络结构参数
-load_dict[ 'subgraphs'][0]['operators']
-
-
-# In[7]:
-
+load_dict['subgraphs'][0]['operators']
 
 # 参数大小
-load_dict[ 'subgraphs'][0]['tensors']
-
-
-# In[8]:
-
+load_dict['subgraphs'][0]['tensors']
 
 print(load_dict.keys())
-print('\noperator_codes :',load_dict[ 'operator_codes'])
-print("\nsubgraphs keys :",load_dict['subgraphs'][0].keys(),end="\n\n")
+print('\noperator_codes :', load_dict['operator_codes'])
+print("\nsubgraphs keys :", load_dict['subgraphs'][0].keys(), end="\n\n")
 
-print(load_dict[ 'subgraphs'][0]['inputs'])
-print(load_dict[ 'subgraphs'][0]['outputs'])
-
+print(load_dict['subgraphs'][0]['inputs'])
+print(load_dict['subgraphs'][0]['outputs'])
 
 # ## check operators
-
-# In[9]:
-
 
 op_set_bincode = set()
 op_set_binncode = set()
@@ -168,7 +141,6 @@ for op_dict in tqdm(load_dict['subgraphs'][0]['operators']):
     else:
         print("Don't know some ops")
 
-    
 print(op_set_bincode, op_set_binncode, op_set_nbincode)
 
 # check the tensors
@@ -179,10 +151,10 @@ if tensor_name_set.__len__() == load_dict['subgraphs'][0]['tensors'].__len__():
     print("Everyone have an unique name")
 else:
     print("Someone have an repeated name")
-    
+
 in_len_set = set()
 out_len_set = set()
-builtin_options_set=set()
+builtin_options_set = set()
 for op in tqdm(load_dict['subgraphs'][0]['operators']):
     # find op func
     op_key = None
@@ -203,91 +175,82 @@ for op in tqdm(load_dict['subgraphs'][0]['operators']):
     in_len_set.add((op_key, in_len))
     out_len_set.add(out_len)
     if 'builtin_options' in op:
-        builtin_options_set.add((op_key,tuple(op['builtin_options'])))
+        builtin_options_set.add((op_key, tuple(op['builtin_options'])))
         if 'depth_multiplier' in op['builtin_options']:
-            print(op['builtin_options']['depth_multiplier'],end=" ")
+            print(op['builtin_options']['depth_multiplier'], end=" ")
     else:
         builtin_options_set.add((op_key))
-    
-print("The inputs&outputs length:\n",in_len_set, out_len_set)
-print("\nThe builtin_options of operators:\n",builtin_options_set)
 
+print("The inputs&outputs length:\n", in_len_set, out_len_set)
+print("\nThe builtin_options of operators:\n", builtin_options_set)
 
 # ## check tensors
 
 # In[10]:
-
-
-tensors_key=set()
-for t in tqdm(load_dict[ 'subgraphs'][0]['tensors']):
+tensors_key = set()
+for t in tqdm(load_dict['subgraphs'][0]['tensors']):
     for k in t.keys():
         tensors_key.add(k)
-        if k=='type':
+        if k == 'type':
             print(t)
 print(tensors_key)
 
-
 # # TensorClass
-
-# In[11]:
 
 
 class Tensors():
-    def __init__(self,buffers,tensors):
+    def __init__(self, buffers, tensors):
         """
         arg:
         buffers:load_dict['buffers']
         tensors:load_dict['subgraphs'][0]['tensors']
         """
-        self.OriBuffers=buffers
-        self.OriTensors=tensors
-        self.CalTensors=[None]*tensors.__len__()
+        self.OriBuffers = buffers
+        self.OriTensors = tensors
+        self.CalTensors = [None] * tensors.__len__()
         pass
-    
-    def get_tensor(self,index):
+
+    def get_tensor(self, index):
         if self.CalTensors[index] is None:
-            dtype='f'
-            buffers_idx=self.OriTensors[index]['buffer']
+            dtype = 'f'
+            buffers_idx = self.OriTensors[index]['buffer']
             if 'type' in self.OriTensors[index]:
-                if self.OriTensors[index]['type']=='INT32':
-                    dtype='i'
-            setTen=getOneBuffers(self.OriBuffers[buffers_idx]['data'],dtype)
-            self.set_tensor(index,setTen.reshape(self.OriTensors[index]['shape']))
+                if self.OriTensors[index]['type'] == 'INT32':
+                    dtype = 'i'
+            setTen = getOneBuffers(self.OriBuffers[buffers_idx]['data'], dtype)
+            self.set_tensor(index,
+                            setTen.reshape(self.OriTensors[index]['shape']))
         return self.CalTensors[index]
-    
-    def get_shape(self,index):
+
+    def get_shape(self, index):
         return tuple(self.OriTensors[index]['shape'])
-    
-    def set_tensor(self,index,tensor,name='Const'):
-#         if tensor.shape!=tuple(self.OriTensors[index]['shape']):
-#             print("input tensor shape not match")
-#             return False
+
+    def set_tensor(self, index, tensor, name='Const'):
+        #         if tensor.shape!=tuple(self.OriTensors[index]['shape']):
+        #             print("input tensor shape not match")
+        #             return False
         # if type(tensor)==np.ndarray:
         #     tensor=tf.constant(tensor,name=name)
-        self.CalTensors[index]=tensor
+        self.CalTensors[index] = tensor
         return True
-    
+
+
 # testTensor
 # tT=Tensors(load_dict['buffers'],load_dict['subgraphs'][0]['tensors'])
 # print(tT.get_tensor(1).shape,tT.get_shape(1))
 
 # # Inference the Net
 
-# In[13]:
-
-
-AllTensor=Tensors(load_dict['buffers'],load_dict['subgraphs'][0]['tensors'])
+AllTensor = Tensors(load_dict['buffers'], load_dict['subgraphs'][0]['tensors'])
 graph_ops = load_dict['subgraphs'][0]['operators']
-
-
-# In[14]:
-
 
 # img = tf.constant(np.load(testnp)[np.newaxis])
 with tf.Session() as sess:
     inputs = tf.placeholder(tf.float32, shape=(1, 256, 256, 3), name='inputs')
-    inoutname=[inputs.name,]
-    outname=[]
+    inoutname = [
+        inputs.name,
+    ]
+    outname = []
     AllTensor.set_tensor(0, inputs)
     for op in tqdm(graph_ops):
         # find op func
@@ -314,7 +277,7 @@ with tf.Session() as sess:
         inputs_list = []
         for inidx in input_idx:
             inputs_list.append(AllTensor.get_tensor(inidx))
-        
+
         out_tensor = op_func(inputs_list, options)
         if not AllTensor.set_tensor(output_idx[0], out_tensor):
             print("maybe opfunc ", op_func, " error")
@@ -322,10 +285,9 @@ with tf.Session() as sess:
         if output_idx[0] in load_dict['subgraphs'][0]['outputs']:
             inoutname.append(out_tensor.name)
             outname.append(out_tensor.name.split(":")[0])
-    constant_graph = tf.graph_util.convert_variables_to_constants(sess, sess.graph_def, outname)
+    constant_graph = tf.graph_util.convert_variables_to_constants(
+        sess, sess.graph_def, outname)
     with tf.gfile.FastGFile(pb_path, mode='wb') as f:
         f.write(constant_graph.SerializeToString())
-    print("Input Name:",inoutname[0])
-    print("Output Name:",inoutname[1:])
-
-
+    print("Input Name:", inoutname[0])
+    print("Output Name:", inoutname[1:])
