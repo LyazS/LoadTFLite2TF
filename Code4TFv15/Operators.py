@@ -74,12 +74,33 @@ def tfrelu(inputs, options=None):
     return tf.nn.relu(inputs[0])
 
 
+# def tfpad(inputs, options=None):
+#     # pd=tf.to_int32(inputs[1], name='ToInt32')
+#     # pd=tf.cast(inputs[1],tf.int32)
+#     pd=inputs[1].astype(np.int32)
+#     return tf.pad(inputs[0], pd)
+tmppad=True
 def tfpad(inputs, options=None):
     # pd=tf.to_int32(inputs[1], name='ToInt32')
     # pd=tf.cast(inputs[1],tf.int32)
     pd=inputs[1].astype(np.int32)
-    return tf.pad(inputs[0], pd)
+    pdc=inputs[0]
 
+    if pd[-1,0]!=0:
+        print("pad not support!")
+        raise
+    if tmppad and pd[-1,1]!=0:
+        strides = [1, 1 ,1 ,1]
+        filters = np.zeros((1,1,inputs[0].shape[-1],inputs[0].shape[-1]+pd[-1,1]))
+        for i in range(pd[-1,1]):
+            filters[0,0,i,i]=1.
+        # filters=tf.cast(filters,tf.float32)
+        filters=filters.astype(np.float32)
+        pdc = tf.nn.conv2d(pdc, filter=filters, strides=strides, padding="SAME")
+        bias=np.zeros((pdc.shape[-1])).astype(np.float32)
+        convbias = tf.nn.bias_add(pdc, bias)
+        pd[-1,1]=0
+    return tf.pad(pdc, pd)
 
 def tftransposeconv(inputs, options=None):
     """

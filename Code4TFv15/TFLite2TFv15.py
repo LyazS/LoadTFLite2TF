@@ -287,7 +287,10 @@ with tf.Session() as sess:
             outname.append(out_tensor.name.split(":")[0])
     constant_graph = tf.graph_util.convert_variables_to_constants(
         sess, sess.graph_def, outname)
-    with tf.gfile.FastGFile(pb_path, mode='wb') as f:
-        f.write(constant_graph.SerializeToString())
+    frozen_graph = tf.graph_util.remove_training_nodes(constant_graph)
+    with open(pb_path, "wb") as ofile:
+        ofile.write(frozen_graph.SerializeToString())
+    # with tf.gfile.FastGFile(pb_path, mode='wb') as f:
+    #     f.write(constant_graph.SerializeToString())
     print("Input Name:", inoutname[0])
     print("Output Name:", inoutname[1:])
